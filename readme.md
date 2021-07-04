@@ -8,7 +8,7 @@ It detects which platform it is running on. If it is react-native, react-native 
 used otherwise borswer apis are used. for example div is used on web and View is used on react-native.
 It also adds support for dataset, onClick
 
-# caveat
+# caveats
 * If you are not already using styled-components this project won't be useful to you, first switch to styled-compoents to make use of this package
 * Not yet tested on MAC / IOS
 * This project is very infant
