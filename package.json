@@ -1,8 +1,12 @@
 {
   "name": "portable-components",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/itsarnavsingh/portable-components"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -5,11 +5,11 @@ Note: Handle localstorage in a asynchronous way
 
 # How it works
 It detects which platform it is running on. If it is react-native, react-native modules are
-used otherwise borswer apis are used. for example div is used on web and View is used on react-native.
-It also adds support for dataset, onClick
+used otherwise borswer apis are used. For example div is used on web and View is used on react-native.
+It also adds support for dataset & onClick.
 
 # Benefits
-with react-native you can't have text inside view but with this package you can
+With react-native you can't have text inside view but with this package you can
 Just use styled.div
 
 # caveats
