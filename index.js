@@ -3,14 +3,21 @@ import rnStyled from "styled-components/native";
 import React from "react";
 import { Picker, Option } from "./NativePicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import filterStyle from "./filterStyle";
 
-const NativeTextInputStyle = rnStyled.TextInput`
+const NativeTextInput = rnStyled.TextInput`
 ${({ style }) => {
   return style;
 }}
 `;
 
 const NativeView = rnStyled.View`
+${({ style }) => {
+  return style;
+}}
+`;
+
+const NativeText = rnStyled.Text`
 ${({ style }) => {
   return style;
 }}
@@ -31,11 +38,11 @@ function compatableInput(styleString) {
     }
 
     return (
-      <NativeTextInputStyle
+      <NativeTextInput
         {...props}
         onChange={onChangeIntermediate}
         style={styleString}
-      ></NativeTextInputStyle>
+      ></NativeTextInput>
     );
   };
 }
@@ -75,16 +82,6 @@ function compatablePicker(styleString) {
   };
 }
 
-function compatableOption() {
-  return (props) => {
-    let { children, value } = props;
-
-    return (
-      <Picker.Item {...props} label={children} value={value}></Picker.Item>
-    );
-  };
-}
-
 function compatableDiv(styleString) {
   return (props) => {
     let { children, onClick } = props;
@@ -94,9 +91,16 @@ function compatableDiv(styleString) {
       onClick({ target: { dataset: dataset } });
     }
 
+    let filteredStyle = filterStyle(styleString);
+
+    let child = children;
+
+    if (typeof children == "String")
+      child = <NativeText style={filteredStyle.text}>{children}</NativeText>;
+
     return (
       <ClickContainer onPress={onClickIntermediate}>
-        <NativeView style={styleString}>{children}</NativeView>
+        <NativeView style={filteredStyle.view}>{child}</NativeView>
       </ClickContainer>
     );
   };
@@ -109,18 +113,13 @@ if (typeof document != "undefined") {
 }
 
 class components {
-  constructor() {
-    this.env = window.platformType;
-  }
-  div = (styleString) => {
-    if (this.env == "web") return styled.div(styleString);
+  div(styleString) {
     return compatableDiv(styleString);
-  };
+  }
 
-  span = (styleString) => {
-    if (this.env == "web") return styled.span(styleString);
-    return rnStyled.Text(styleString);
-  };
+  span(styleString) {
+    return compatableDiv(styleString);
+  }
 
   button = this.div;
 
@@ -136,24 +135,21 @@ class components {
 
   h6 = this.span;
 
-  option = (styleString) => {
-    if (this.env == "web") return styled.option(styleString);
+  option() {
     return Option;
-  };
+  }
 
-  select = (styleString) => {
-    if (this.env == "web") return styled.select(styleString);
+  select(styleString) {
     return compatablePicker(styleString);
-  };
+  }
 
-  input = (styleString) => {
-    if (this.env == "web") return styled.input(styleString);
+  input(styleString) {
     return compatableInput(styleString);
-  };
+  }
 }
 
 module.exports = {
-  styled: new components(),
+  styled: window.platformType == "web" ? styled : new components(),
   localStorage:
     window.platformType == "web" ? window.localStorage : AsyncStorage,
 };
