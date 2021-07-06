@@ -1,24 +1,25 @@
-import styled from "styled-components";
-import rnStyled from "styled-components/native";
-import React from "react";
-import { Picker, Option } from "./NativePicker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import filterStyle from "./filterStyle";
+import styled from 'styled-components';
+import rnStyled from 'styled-components/native';
+import React from 'react';
+import {Picker, Option} from './NativePicker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import filterStyle from './filterStyle';
+import {CheckBox} from 'react-native';
 
 const NativeTextInput = rnStyled.TextInput`
-${({ style }) => {
+${({style}) => {
   return style;
 }}
 `;
 
 const NativeView = rnStyled.View`
-${({ style }) => {
+${({style}) => {
   return style;
 }}
 `;
 
 const NativeText = rnStyled.Text`
-${({ style }) => {
+${({style}) => {
   return style;
 }}
 `;
@@ -26,23 +27,26 @@ ${({ style }) => {
 let ClickContainer = styled.TouchableHighlight``;
 
 function compatableInput(styleString) {
-  return (props) => {
-    let { onChange } = props;
+  return props => {
+    let {onChange, value, type, checked} = props;
 
     let dataset = getDataset(props);
 
     function onChangeIntermediate(text) {
       if (!onChange) return;
-      let obj = { target: { value: text, dataset: dataset } };
+      let obj = {target: {value: text, dataset: dataset}};
       onChange(obj);
     }
 
+    let filteredStyle = filterStyle(styleString, props);
+
+    if (!value) value = '';
+
     return (
       <NativeTextInput
-        {...props}
-        onChange={onChangeIntermediate}
-        style={styleString}
-      ></NativeTextInput>
+        value={value.toString()}
+        onChangeText={onChangeIntermediate}
+        style={filteredStyle.text}></NativeTextInput>
     );
   };
 }
@@ -50,8 +54,8 @@ function compatableInput(styleString) {
 function getDataset(props) {
   let dataset = {};
   for (let key in props) {
-    if (key.indexOf("data-") !== -1) {
-      let actualField = key.replace("data-", "");
+    if (key.indexOf('data-') !== -1) {
+      let actualField = key.replace('data-', '');
       dataset[actualField] = props[key];
     }
   }
@@ -60,43 +64,67 @@ function getDataset(props) {
 }
 
 function compatablePicker(styleString) {
-  return (props) => {
-    let { onChange, value } = props;
+  return props => {
+    let {onChange, value} = props;
 
     let dataset = getDataset(props);
 
     function onChangeIntermediate(text) {
       if (!onChange) return;
-      let obj = { target: { value: text, dataset: dataset } };
+      let obj = {target: {value: text, dataset: dataset}};
       onChange(obj);
     }
+
+    let filteredStyle = filterStyle(styleString, props);
 
     return (
       <Picker
         {...props}
         selectedValue={value}
         onValueChange={onChangeIntermediate}
-        style={styleString}
-      ></Picker>
+        style={filteredStyle.view}></Picker>
     );
   };
 }
 
+function isNumberOrString(element) {
+  if (typeof element == 'string' || typeof element == 'number') return true;
+  return false;
+}
+
 function compatableDiv(styleString) {
-  return (props) => {
-    let { children, onClick } = props;
+  return props => {
+    let {children, onClick} = props;
     let dataset = getDataset(props);
 
     function onClickIntermediate() {
-      onClick({ target: { dataset: dataset } });
+      onClick({target: {dataset: dataset}});
     }
 
-    let filteredStyle = filterStyle(styleString);
+    let filteredStyle = filterStyle(styleString, props);
 
     let child = children;
 
-    if (typeof children == "String")
-      child = <NativeText style={filteredStyle.text}>{children}</NativeText>;
+    if (isNumberOrString(children)) {
+      child = (
+        <NativeText style={filteredStyle.text}>
+          {children.toString()}
+        </NativeText>
+      );
+    } else if (Array.isArray(children)) {
+      child = [];
+      for (let element of children) {
+        if (isNumberOrString(element)) {
+          child.push(<NativeText>{element.toString()}</NativeText>);
+        } else {
+          child.push(element);
+        }
+      }
+    } else if (!children) {
+      child = [];
+    }
+
+    console.log(child);
 
     return (
       <ClickContainer onPress={onClickIntermediate}>
@@ -106,50 +134,48 @@ function compatableDiv(styleString) {
   };
 }
 
-if (typeof document != "undefined") {
-  window.platformType = "web";
+if (typeof document != 'undefined') {
+  window.platformType = 'web';
 } else {
-  window.platformType = "react-native";
+  window.platformType = 'react-native';
 }
 
 class components {
-  div(styleString) {
-    return compatableDiv(styleString);
+  div(styleString, ...dynamicData) {
+    return compatableDiv([styleString, dynamicData]);
   }
 
-  span(styleString) {
-    return compatableDiv(styleString);
-  }
+  span = this.div;
 
   button = this.div;
 
-  h1 = this.span;
+  h1 = this.div;
 
-  h2 = this.span;
+  h2 = this.div;
 
-  h3 = this.span;
+  h3 = this.div;
 
-  h4 = this.span;
+  h4 = this.div;
 
-  h5 = this.span;
+  h5 = this.div;
 
-  h6 = this.span;
+  h6 = this.div;
 
   option() {
     return Option;
   }
 
-  select(styleString) {
-    return compatablePicker(styleString);
+  select(styleString, ...dynamicData) {
+    return compatablePicker([styleString, dynamicData]);
   }
 
-  input(styleString) {
-    return compatableInput(styleString);
+  input(styleString, ...dynamicData) {
+    return compatableInput([styleString, dynamicData]);
   }
 }
 
 module.exports = {
-  styled: window.platformType == "web" ? styled : new components(),
+  styled: window.platformType == 'web' ? styled : new components(),
   localStorage:
-    window.platformType == "web" ? window.localStorage : AsyncStorage,
+    window.platformType == 'web' ? window.localStorage : AsyncStorage,
 };

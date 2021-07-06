@@ -1,10 +1,10 @@
-import styled from "styled-components/native";
-import React, { useState } from "react";
+import styled from 'styled-components/native';
+import React, {useState} from 'react';
 
 let MainParent = styled.View`
   position: relative;
   width: 100%;
-  ${({ style }) => {
+  ${({style}) => {
     return style;
   }}
 `;
@@ -45,7 +45,7 @@ let AnOption = styled.View`
   border: 1px solid;
 `;
 
-export function Picker({ children, value, style }) {
+export function Picker({children, value, style}) {
   let [showing, show] = useState(false);
   let [currentValue, setValue] = useState(value);
 
@@ -60,17 +60,16 @@ export function Picker({ children, value, style }) {
 
   for (let child of children) {
     let childProps = child.props;
-    console.log(childProps);
+
     optionsList.push(
       <ClickContainer
         onPress={() => {
           optionSelected(childProps.value);
-        }}
-      >
+        }}>
         <AnOption>
           <Text>{childProps.children}</Text>
         </AnOption>
-      </ClickContainer>
+      </ClickContainer>,
     );
   }
 
@@ -81,10 +80,9 @@ export function Picker({ children, value, style }) {
       ) : (
         <ClickContainer
           onPress={() => {
-            console.log("clicked");
+            console.log('clicked');
             show(true);
-          }}
-        >
+          }}>
           <SelectedOption>
             <Text>{currentValue}</Text>
             <Text>{`\\/`}</Text>
@@ -95,6 +93,8 @@ export function Picker({ children, value, style }) {
   );
 }
 
-export function Item(props) {
-  return <Text {...props}></Text>;
+export function Option(props) {
+  let newProps = {...props};
+  newProps.children = newProps.children.toString();
+  return <Text {...newProps}></Text>;
 }

@@ -4,24 +4,29 @@ function caps(theString) {
 }
 
 function toCamelCase(theString) {
-  if (theString.indexOf("-") === -1) return theString;
-  let split = theString.split("-");
+  if (theString.indexOf('-') === -1) return theString;
+  let split = theString.split('-');
   let parts = [split[0]];
   for (let i = 1; i < split.length; i++) {
     parts.push(caps(split[i]));
   }
-  return parts.join("");
+  return parts.join('');
 }
 
 export default function objectFromCSS(theString) {
-  let lines = theString.split(";");
+  if (!theString) return {};
+  let lines = theString.split(';');
   let obj = {};
 
   for (let line of lines) {
     if (!line.trim()) continue;
-    let lineSplit = line.split(":");
+    if (line.indexOf(':') == -1) {
+      console.log('invalid line ' + line);
+      continue;
+    }
+    let lineSplit = line.split(':');
 
-    let field = lineSplit[0];
+    let field = lineSplit[0].trim();
     let value = lineSplit[1].trim();
     field = toCamelCase(field);
     obj[field] = value;
