@@ -1,7 +1,10 @@
+Note: Don't use it in production, this is super experimental.
+
+
 # Porting react to react-native made simple
 Just use our dropin replacement for styled-components and localstorage
 
-Note: Handle localstorage in a asynchronous way
+
 
 # How it works
 It encapluates react-native api in a way that makes it behave as web API. So, things
@@ -47,3 +50,5 @@ import {styled,localStorage} from "portable-components"
 If you are not using any third party react library then everything might work as
 expected otherwise you will have to replace react libraries with react-native
 alternative 
+
+Note: Handle localstorage in a asynchronous way

@@ -1,5 +1,7 @@
 import styled from 'styled-components/native';
 import React, {useState} from 'react';
+import filterStyle from 'portable-components/filterStyle';
+import objectFromCSS from 'portable-components/objectFromCSS';
 
 let MainParent = styled.View`
   position: relative;
@@ -9,7 +11,11 @@ let MainParent = styled.View`
   }}
 `;
 
-let ClickContainer = styled.TouchableHighlight``;
+let ClickContainer = styled.TouchableHighlight`
+  ${({style}) => {
+    return style;
+  }}
+`;
 
 let SelectedOption = styled.View`
   display: flex;
@@ -25,13 +31,17 @@ let SelectedOption = styled.View`
 
 let Text = styled.Text`
   color: #111;
+  ${({style}) => {
+    return style;
+  }}
 `;
 
 let OptionParentContainer = styled.View`
   position: absolute;
   top: 0;
   width: 100%;
-
+  z-index: 5000;
+  border-radius: 25px;
   background-color: #fff;
   padding: 25px;
   display: flex;
@@ -46,21 +56,28 @@ let AnOption = styled.View`
   border: 1px solid;
 `;
 
-export function Picker({children, value, style}) {
+export function Picker({children, value, style, onChange}) {
   let [showing, show] = useState(false);
-  let [currentValue, setValue] = useState(value);
-
   if (!style) style = {};
 
   let optionsList = [];
 
   function optionSelected(newVal) {
-    setValue(newVal);
+    onChange(newVal);
+
     show(false);
   }
 
+  // let filtered = filterStyle(style);
+
+  if (!children) return [];
+
+  let options = {};
+
   for (let child of children) {
     let childProps = child.props;
+
+    options[childProps.value] = childProps.children;
 
     optionsList.push(
       <ClickContainer
@@ -80,12 +97,13 @@ export function Picker({children, value, style}) {
         <OptionParentContainer>{optionsList}</OptionParentContainer>
       ) : (
         <ClickContainer
+          style={style}
           onPress={() => {
             console.log('clicked');
             show(true);
           }}>
           <SelectedOption>
-            <Text>{currentValue}</Text>
+            <Text>{options[value]}</Text>
             <Text>{`\\/`}</Text>
           </SelectedOption>
         </ClickContainer>
@@ -97,5 +115,6 @@ export function Picker({children, value, style}) {
 export function Option(props) {
   let newProps = {...props};
   newProps.children = newProps.children.toString();
+
   return <Text {...newProps}></Text>;
 }

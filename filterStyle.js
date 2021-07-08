@@ -1,25 +1,25 @@
-import objectFromCSS from "./objectFromCSS";
-import viewSupportedStyle from "./viewSupportedStyle.json";
-import textSupportedStyle from "./textSupportedStyle.json";
-import units from "./viewportSize";
+import objectFromCSS from './objectFromCSS';
+import viewSupportedStyle from './viewSupportedStyle.json';
+import textSupportedStyle from './textSupportedStyle.json';
+import units from './viewportSize';
 
 function camelCaseToHyphenCase(theString) {
-  return theString.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase());
+  return theString.replace(/[A-Z]/g, m => '-' + m.toLowerCase());
 }
 
-let { vw, vh, vmin, vmax } = units;
-console.log("aaaaaa", vw, vh, vmin, vmax);
+let {vw, vh, vmin, vmax} = units;
+console.log('aaaaaa', vw, vh, vmin, vmax);
 
 function removeUnit(val) {
   return val
-    .replace("vw", "")
-    .replace("vh", "")
-    .replace("vmin", "")
-    .replace("vmax", "");
+    .replace('vw', '')
+    .replace('vh', '')
+    .replace('vmin', '')
+    .replace('vmax', '');
 }
 
 function parseValue(val) {
-  let unitsToProcess = { vw: vw, vh: vh, vmax: vmax, vmin: vmin };
+  let unitsToProcess = {vw: vw, vh: vh, vmax: vmax, vmin: vmin};
 
   for (let unit in unitsToProcess) {
     if (val.indexOf(unit) !== -1) {
@@ -41,8 +41,9 @@ function getCSS(field, obj) {
 }
 
 function removePseudoStyle(styleString) {
-  styleString = styleString.replace(/\n/gi, "");
-  return styleString.replace(/;(.*)}/gi, ";");
+  styleString = styleString.replace(/\*(.|\n)*?\*/gi, '');
+  styleString = styleString.replace(/\n/gi, '');
+  return styleString.replace(/;(.*)}/gi, ';');
 }
 
 function processTemplateLiterals(literal, props) {
@@ -50,14 +51,14 @@ function processTemplateLiterals(literal, props) {
   let strings = literal[0];
   let dynamic = literal[1];
 
-  let style = "";
+  let style = '';
 
   for (let i = 0; i < dynamicsLength; i++) {
     style += strings[i];
 
     if (dynamic[i]) {
-      let val = "";
-      if (typeof dynamic[i] == "function") {
+      let val = '';
+      if (typeof dynamic[i] == 'function') {
         let func = dynamic[i];
         val = func(props);
       } else {
@@ -71,21 +72,50 @@ function processTemplateLiterals(literal, props) {
   return style;
 }
 
+function transformStyle(field, value) {
+  let possibleTransformation = {
+    borderTop: ['Width', 'Style', 'Color'],
+  };
+
+  possibleTransformation.borderRight = possibleTransformation.borderTop;
+  possibleTransformation.borderBottom = possibleTransformation.borderTop;
+  possibleTransformation.borderLeft = possibleTransformation.borderTop;
+
+  let transformations = possibleTransformation[field];
+
+  if (!transformations) return null;
+
+  let newObj = {};
+
+  let values = value.split(' ');
+  for (let i = 0; i < values.length; i++) {
+    if (transformations[i]) {
+      let newField = field + transformations[i];
+      if (transformations[i] == 'Style') {
+        newField = 'borderStyle';
+      }
+      newObj[newField] = values[i];
+    }
+  }
+
+  return newObj;
+}
+
 function filterStyle(literal, props) {
   let styleString = processTemplateLiterals(literal, props);
 
   styleString = removePseudoStyle(styleString);
 
-  if (!styleString)
-    return {
-      view: "",
-      text: "",
-    };
-
-  let viewStyle = [];
+  let viewStyle = ['flex-direction:row'];
   let textStyle = [];
 
-  styleString = styleString.replace(/\n/g, "");
+  if (!styleString)
+    return {
+      view: viewStyle.join(';'),
+      text: '',
+    };
+
+  styleString = styleString.replace(/\n/g, '');
 
   // console.log(literal, styleString);
 
@@ -95,17 +125,32 @@ function filterStyle(literal, props) {
     // console.log(viewSupportedStyle.includes(field), field);
 
     if (viewSupportedStyle.includes(field)) {
+      if (field == 'position' && obj[field] == 'fixed') {
+        obj[field] = 'absolute';
+        // console.log('fixed positon is not supported, using absolute position');
+      }
       viewStyle.push(getCSS(field, obj));
-    } else if (textSupportedStyle.includes(field)) {
+    }
+
+    if (textSupportedStyle.includes(field)) {
       textStyle.push(getCSS(field, obj));
-    } else {
-      console.log(field + " is not supported");
+    }
+
+    if (!viewSupportedStyle.includes(field)) {
+      let transformedStyle = transformStyle(field, obj[field]);
+      if (transformedStyle) {
+        for (let newField in transformedStyle) {
+          viewStyle.push(getCSS(newField, transformedStyle));
+        }
+      } else {
+        // console.log(field + ' is not supported');
+      }
     }
   }
 
   return {
-    view: viewStyle.join(";"),
-    text: textStyle.join(";"),
+    view: viewStyle.join(';'),
+    text: textStyle.join(';'),
   };
 }
 

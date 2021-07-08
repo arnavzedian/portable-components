@@ -1,25 +1,25 @@
-import styled from "styled-components";
-import rnStyled from "styled-components/native";
-import React from "react";
-import { Picker, Option } from "./NativePicker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import filterStyle from "./filterStyle";
-import { CheckBox } from "react-native";
+import styled from 'styled-components';
+import rnStyled from 'styled-components/native';
+import React from 'react';
+import {Picker, Option} from './NativePicker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import filterStyle from './filterStyle';
+import objectFromCSS from 'portable-components/objectFromCSS';
 
 const NativeTextInput = rnStyled.TextInput`
-${({ style }) => {
+${({style}) => {
   return style;
 }}
 `;
 
 const NativeView = rnStyled.View`
-${({ style }) => {
+${({style}) => {
   return style;
 }}
 `;
 
 const NativeText = rnStyled.Text`
-${({ style }) => {
+${({style}) => {
   return style;
 }}
 `;
@@ -27,27 +27,29 @@ ${({ style }) => {
 let ClickContainer = styled.TouchableHighlight``;
 
 function compatableInput(styleString) {
-  return (props) => {
-    let { onChange, value, type, checked } = props;
+  return props => {
+    let {onChange, value, type, checked, placeholder} = props;
 
     let dataset = getDataset(props);
 
     function onChangeIntermediate(text) {
       if (!onChange) return;
-      let obj = { target: { value: text, dataset: dataset } };
+      let obj = {target: {value: text, dataset: dataset}};
       onChange(obj);
     }
 
     let filteredStyle = filterStyle(styleString, props);
 
-    if (!value) value = "";
+    if (!value) value = '';
+
+    if (!placeholder) placeholder = 'Type here';
 
     return (
       <NativeTextInput
+        placeholder={placeholder}
         value={value.toString()}
         onChangeText={onChangeIntermediate}
-        style={filteredStyle.text}
-      ></NativeTextInput>
+        style={filteredStyle.view}></NativeTextInput>
     );
   };
 }
@@ -55,8 +57,8 @@ function compatableInput(styleString) {
 function getDataset(props) {
   let dataset = {};
   for (let key in props) {
-    if (key.indexOf("data-") !== -1) {
-      let actualField = key.replace("data-", "");
+    if (key.indexOf('data-') !== -1) {
+      let actualField = key.replace('data-', '');
       dataset[actualField] = props[key];
     }
   }
@@ -64,43 +66,62 @@ function getDataset(props) {
   return dataset;
 }
 
+function theIntermediate(value, dataset, event) {
+  if (!event) return;
+  let obj = {target: {value: value, dataset: dataset}};
+  event(obj);
+}
+
 function compatablePicker(styleString) {
-  return (props) => {
-    let { onChange, value } = props;
+  return props => {
+    let {onChange, value, children} = props;
 
     let dataset = getDataset(props);
 
     function onChangeIntermediate(text) {
-      if (!onChange) return;
-      let obj = { target: { value: text, dataset: dataset } };
-      onChange(obj);
+      theIntermediate(text, dataset, onChange);
     }
 
     let filteredStyle = filterStyle(styleString, props);
 
+    // let theCSS = objectFromCSS(filteredStyle.view);
+
     return (
       <Picker
-        {...props}
-        selectedValue={value}
-        onValueChange={onChangeIntermediate}
-        style={filteredStyle.view}
-      ></Picker>
+        value={value}
+        children={children}
+        onChange={onChangeIntermediate}
+        style={filteredStyle.view}></Picker>
+    );
+  };
+}
+
+function compatableOption(styleString) {
+  return props => {
+    let {children, value} = props;
+
+    let filteredStyle = filterStyle(styleString, props);
+
+    return (
+      <Option value={value.toString()} style={filteredStyle.text}>
+        {children.toString()}
+      </Option>
     );
   };
 }
 
 function isNumberOrString(element) {
-  if (typeof element == "string" || typeof element == "number") return true;
+  if (typeof element == 'string' || typeof element == 'number') return true;
   return false;
 }
 
 function compatableDiv(styleString) {
-  return (props) => {
-    let { children, onClick } = props;
+  return props => {
+    let {children, onClick} = props;
     let dataset = getDataset(props);
 
     function onClickIntermediate() {
-      onClick({ target: { dataset: dataset } });
+      onClick({target: {dataset: dataset}});
     }
 
     let filteredStyle = filterStyle(styleString, props);
@@ -108,11 +129,7 @@ function compatableDiv(styleString) {
     let child = children;
 
     if (isNumberOrString(children)) {
-      child = (
-        <NativeText style={filteredStyle.text}>
-          {children.toString()}
-        </NativeText>
-      );
+      child = <NativeText>{children.toString()}</NativeText>;
     } else if (Array.isArray(children)) {
       child = [];
       for (let element of children) {
@@ -130,9 +147,8 @@ function compatableDiv(styleString) {
       return (
         <ClickContainer
           style={filteredStyle.view}
-          onPress={onClickIntermediate}
-        >
-          <NativeView style={`height:100%; width:100%`}>{child}</NativeView>
+          onPress={onClickIntermediate}>
+          <NativeView>{child}</NativeView>
         </ClickContainer>
       );
     } else {
@@ -141,10 +157,10 @@ function compatableDiv(styleString) {
   };
 }
 
-if (typeof document != "undefined") {
-  window.platformType = "web";
+if (typeof document != 'undefined') {
+  window.platformType = 'web';
 } else {
-  window.platformType = "react-native";
+  window.platformType = 'react-native';
 }
 
 class components {
@@ -168,8 +184,8 @@ class components {
 
   h6 = this.div;
 
-  option() {
-    return Option;
+  option(styleString, ...dynamicData) {
+    return compatableOption([styleString, dynamicData]);
   }
 
   select(styleString, ...dynamicData) {
@@ -182,7 +198,7 @@ class components {
 }
 
 module.exports = {
-  styled: window.platformType == "web" ? styled : new components(),
+  styled: window.platformType == 'web' ? styled : new components(),
   localStorage:
-    window.platformType == "web" ? window.localStorage : AsyncStorage,
+    window.platformType == 'web' ? window.localStorage : AsyncStorage,
 };
