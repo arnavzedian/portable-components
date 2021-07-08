@@ -10,4 +10,5 @@ var units = {
 units.vmin = Math.min(units.vw, units.vh);
 units.vmax = Math.max(units.vw, units.vh);
 
+console.log('dddddddddd', units);
 export default units;

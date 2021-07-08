@@ -34,8 +34,20 @@
   "flexShrink",
   "height",
   "width",
+  "margin",
+  "padding",
+  "paddingTop",
+  "paddingBottom",
+  "paddingLeft",
+  "paddingRight",
+  "margin",
+  "marginTop",
+  "marginBottom",
+  "marginLeft",
+  "marginRight",
   "borderTopWidth",
   "borderWidth",
   "elevationAndroid",
-  "opacity"
+  "opacity",
+  "flex"
 ]

@@ -15,10 +15,11 @@ let SelectedOption = styled.View`
   display: flex;
   background: #fff;
   color: #111;
+  width: 100%;
   flex-direction: row;
   border: 1px solid #111;
   border-radius: 15px;
-  padding: 25px;
+  padding: 15px;
   justify-content: space-between;
 `;
 
@@ -74,7 +75,7 @@ export function Picker({children, value, style}) {
   }
 
   return (
-    <MainParent style={style}>
+    <MainParent>
       {showing ? (
         <OptionParentContainer>{optionsList}</OptionParentContainer>
       ) : (

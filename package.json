@@ -1,28 +1,4 @@
 {
-  "_from": "portable-components",
-  "_id": "portable-components@1.0.6",
-  "_inBundle": false,
-  "_integrity": "sha512-HQQYBY6Tep2hhoHUDmf+Npai4Khtt/1IJNldHRHx1RIZLcKhxhma6HM4441/48Rv1zCAfREHoI4zfLnig6EZOg==",
-  "_location": "/portable-components",
-  "_phantomChildren": {},
-  "_requested": {
-    "type": "tag",
-    "registry": true,
-    "raw": "portable-components",
-    "name": "portable-components",
-    "escapedName": "portable-components",
-    "rawSpec": "",
-    "saveSpec": null,
-    "fetchSpec": "latest"
-  },
-  "_requiredBy": [
-    "#USER",
-    "/"
-  ],
-  "_resolved": "https://registry.npmjs.org/portable-components/-/portable-components-1.0.6.tgz",
-  "_shasum": "46b78fd6ded746297fe789604f2236d212184001",
-  "_spec": "portable-components",
-  "_where": "A:\\AllProjects\\rnWinTesting",
   "author": "",
   "bundleDependencies": false,
   "dependencies": {
@@ -38,5 +14,5 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "1.0.6"
+  "version": "1.0.7"
 }
