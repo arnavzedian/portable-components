@@ -1,9 +1,13 @@
 {
-  "author": "",
+  "author": "Arnav Singh",
   "bundleDependencies": false,
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.15.5",
     "styled-components": "^5.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/itsarnavsingh/portable-components"
   },
   "deprecated": false,
   "description": "Just use our dropin replacement for styled-components and localstorage",
@@ -14,5 +18,5 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "1.0.7"
+  "version": "1.0.10"
 }
