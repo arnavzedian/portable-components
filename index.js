@@ -115,10 +115,14 @@ function isNumberOrString(element) {
   return false;
 }
 
-function compatableDiv(styleString) {
+function compatableDiv(styleString, headingType) {
   return props => {
     let {children, onClick} = props;
     let dataset = getDataset(props);
+
+    let textProp = {};
+
+    if (headingType) textProp = {[headingType]: true};
 
     function onClickIntermediate() {
       onClick({target: {dataset: dataset}});
@@ -129,12 +133,14 @@ function compatableDiv(styleString) {
     let child = children;
 
     if (isNumberOrString(children)) {
-      child = <NativeText>{children.toString()}</NativeText>;
+      child = <NativeText {...textProp}>{children.toString()}</NativeText>;
     } else if (Array.isArray(children)) {
       child = [];
       for (let element of children) {
         if (isNumberOrString(element)) {
-          child.push(<NativeText>{element.toString()}</NativeText>);
+          child.push(
+            <NativeText {...textProp}>{element.toString()}</NativeText>,
+          );
         } else {
           child.push(element);
         }

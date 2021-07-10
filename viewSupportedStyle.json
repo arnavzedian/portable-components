@@ -74,5 +74,7 @@
   "top",
   "bottom",
   "right",
-  "left"
+  "left",
+  "zIndex",
+  "elevation"
 ]
