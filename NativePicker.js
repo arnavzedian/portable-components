@@ -6,15 +6,19 @@ import objectFromCSS from 'portable-components/objectFromCSS';
 let MainParent = styled.View`
   position: relative;
   width: 100%;
-  ${({style}) => {
-    return style;
+`;
+
+let Text = styled.Text`
+  ${({isActive}) => {
+    if (isActive)
+      return `
+      color:#111;
+    `;
   }}
 `;
 
-let ClickContainer = styled.TouchableHighlight`
-  ${({style}) => {
-    return style;
-  }}
+let ClickContainer = styled.TouchableOpacity`
+  position: relative;
 `;
 
 let SelectedOption = styled.View`
@@ -27,48 +31,55 @@ let SelectedOption = styled.View`
   border-radius: 15px;
   padding: 15px;
   justify-content: space-between;
-`;
-
-let Text = styled.Text`
-  color: #111;
   ${({style}) => {
     return style;
   }}
 `;
 
 let OptionParentContainer = styled.View`
-  position: absolute;
-  top: 0;
   width: 100%;
-  z-index: 5000;
-  border-radius: 25px;
-  background-color: #fff;
-  padding: 25px;
-  display: flex;
-  flex-direction: column;
-  left: 0;
-`;
-
-let AnOption = styled.View`
-  margin-top: 25px;
-  padding: 5px;
+  z-index: 5;
   border-radius: 5px;
-  border: 1px solid;
+  background-color: transparent;
+  padding: 0;
+
+  padding-right: 0;
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: row;
+
+  margin: 10px 0;
+  margin-bottom: 25px;
 `;
 
-export function Picker({children, value, style, onChange}) {
-  let [showing, show] = useState(false);
-  if (!style) style = {};
+let AnOption = styled.TouchableOpacity`
+  padding-right: 10px;
+  padding-left: 10px;
+  padding: 5px;
+  margin-right: 10px;
+  border-radius: 5px;
+  color: #fff;
+  background-color: #111;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  border: 1.5px solid #fff;
+  ${({isActive}) => {
+    if (isActive)
+      return `
+      background:#fff;
+    `;
+  }}
+`;
+
+export function Picker({children, value, filteredStyle, onChange}) {
+  if (!filteredStyle) filteredStyle = '';
 
   let optionsList = [];
 
   function optionSelected(newVal) {
     onChange(newVal);
-
-    show(false);
   }
-
-  // let filtered = filterStyle(style);
 
   if (!children) return [];
 
@@ -80,36 +91,17 @@ export function Picker({children, value, style, onChange}) {
     options[childProps.value] = childProps.children;
 
     optionsList.push(
-      <ClickContainer
+      <AnOption
         onPress={() => {
           optionSelected(childProps.value);
-        }}>
-        <AnOption>
-          <Text>{childProps.children}</Text>
-        </AnOption>
-      </ClickContainer>,
+        }}
+        isActive={value == childProps.value}>
+        <Text isActive={value == childProps.value}>{childProps.children}</Text>
+      </AnOption>,
     );
   }
 
-  return (
-    <MainParent>
-      {showing ? (
-        <OptionParentContainer>{optionsList}</OptionParentContainer>
-      ) : (
-        <ClickContainer
-          style={style}
-          onPress={() => {
-            console.log('clicked');
-            show(true);
-          }}>
-          <SelectedOption>
-            <Text>{options[value]}</Text>
-            <Text>{`\\/`}</Text>
-          </SelectedOption>
-        </ClickContainer>
-      )}
-    </MainParent>
-  );
+  return <OptionParentContainer>{optionsList}</OptionParentContainer>;
 }
 
 export function Option(props) {

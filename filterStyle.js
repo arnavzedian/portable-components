@@ -33,11 +33,9 @@ function parseValue(val) {
   return val;
 }
 
-function getCSS(field, obj) {
-  let value = obj[field];
+function getCSS(obj, field, value) {
   value = parseValue(value);
-
-  return `${camelCaseToHyphenCase(field)}:${value}`;
+  obj.push(`${camelCaseToHyphenCase(field)}:${value}`);
 }
 
 function removePseudoStyle(styleString) {
@@ -93,6 +91,8 @@ function transformStyle(field, value) {
       let newField = field + transformations[i];
       if (transformations[i] == 'Style') {
         newField = 'borderStyle';
+      } else if (transformations[i] == 'Color') {
+        newField = 'borderColor';
       }
       newObj[newField] = values[i];
     }
@@ -106,41 +106,44 @@ function filterStyle(literal, props) {
 
   styleString = removePseudoStyle(styleString);
 
-  let viewStyle = ['flex-direction:row'];
+  let viewStyle = ['flexDirection: row'];
   let textStyle = [];
 
   if (!styleString)
     return {
       view: viewStyle.join(';'),
-      text: '',
+      text: [],
     };
 
   styleString = styleString.replace(/\n/g, '');
-
-  // console.log(literal, styleString);
 
   let obj = objectFromCSS(styleString);
 
   for (let field in obj) {
     // console.log(viewSupportedStyle.includes(field), field);
 
+    if (field == 'color') {
+      getCSS(viewStyle, 'border-color', obj[field]);
+    }
+
     if (viewSupportedStyle.includes(field)) {
       if (field == 'position' && obj[field] == 'fixed') {
         obj[field] = 'absolute';
         // console.log('fixed positon is not supported, using absolute position');
       }
-      viewStyle.push(getCSS(field, obj));
+
+      getCSS(viewStyle, field, obj[field]);
     }
 
     if (textSupportedStyle.includes(field)) {
-      textStyle.push(getCSS(field, obj));
+      getCSS(textStyle, field, obj[field]);
     }
 
     if (!viewSupportedStyle.includes(field)) {
       let transformedStyle = transformStyle(field, obj[field]);
       if (transformedStyle) {
         for (let newField in transformedStyle) {
-          viewStyle.push(getCSS(newField, transformedStyle));
+          getCSS(viewStyle, newField, transformedStyle[newField]);
         }
       } else {
         // console.log(field + ' is not supported');

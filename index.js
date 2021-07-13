@@ -1,30 +1,38 @@
-import styled from 'styled-components';
-import rnStyled from 'styled-components/native';
+import styled from 'styled-components/native';
 import React from 'react';
 import {Picker, Option} from './NativePicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import filterStyle from './filterStyle';
+// import {TextInput, View, Text, TouchableOpacity} from 'react-native';
 import objectFromCSS from 'portable-components/objectFromCSS';
 
-const NativeTextInput = rnStyled.TextInput`
-${({style}) => {
-  return style;
-}}
+const TextInput = styled.TextInput`
+  ${({style}) => {
+    if (style) return style;
+    return '';
+  }}
 `;
 
-const NativeView = rnStyled.View`
-${({style}) => {
-  return style;
-}}
+const View = styled.View`
+  ${({style}) => {
+    if (style) return style;
+    return '';
+  }}
 `;
 
-const NativeText = rnStyled.Text`
-${({style}) => {
-  return style;
-}}
+const Text = styled.Text`
+  ${({style}) => {
+    if (style) return style;
+    return '';
+  }}
 `;
 
-let ClickContainer = styled.TouchableHighlight``;
+const TouchableOpacity = styled.TouchableOpacity`
+  ${({style}) => {
+    if (style) return style;
+    return '';
+  }}
+`;
 
 function compatableInput(styleString) {
   return props => {
@@ -45,11 +53,11 @@ function compatableInput(styleString) {
     if (!placeholder) placeholder = 'Type here';
 
     return (
-      <NativeTextInput
+      <TextInput
         placeholder={placeholder}
         value={value.toString()}
         onChangeText={onChangeIntermediate}
-        style={filteredStyle.view}></NativeTextInput>
+        style={filteredStyle.view}></TextInput>
     );
   };
 }
@@ -84,14 +92,12 @@ function compatablePicker(styleString) {
 
     let filteredStyle = filterStyle(styleString, props);
 
-    // let theCSS = objectFromCSS(filteredStyle.view);
-
     return (
       <Picker
         value={value}
         children={children}
         onChange={onChangeIntermediate}
-        style={filteredStyle.view}></Picker>
+        filteredStyle={filteredStyle}></Picker>
     );
   };
 }
@@ -133,13 +139,19 @@ function compatableDiv(styleString, headingType) {
     let child = children;
 
     if (isNumberOrString(children)) {
-      child = <NativeText {...textProp}>{children.toString()}</NativeText>;
+      child = (
+        <Text style={filteredStyle.text} {...textProp}>
+          {children.toString()}
+        </Text>
+      );
     } else if (Array.isArray(children)) {
       child = [];
       for (let element of children) {
         if (isNumberOrString(element)) {
           child.push(
-            <NativeText {...textProp}>{element.toString()}</NativeText>,
+            <Text style={filteredStyle.text} {...textProp}>
+              {element.toString()}
+            </Text>,
           );
         } else {
           child.push(element);
@@ -151,14 +163,14 @@ function compatableDiv(styleString, headingType) {
 
     if (onClick) {
       return (
-        <ClickContainer
+        <TouchableOpacity
           style={filteredStyle.view}
           onPress={onClickIntermediate}>
-          <NativeView>{child}</NativeView>
-        </ClickContainer>
+          <View>{child}</View>
+        </TouchableOpacity>
       );
     } else {
-      return <NativeView style={filteredStyle.view}>{child}</NativeView>;
+      return <View style={filteredStyle.view}>{child}</View>;
     }
   };
 }
@@ -178,17 +190,27 @@ class components {
 
   button = this.div;
 
-  h1 = this.div;
+  h1(styleString, ...dynamicData) {
+    return compatableDiv([styleString, dynamicData], 'h1');
+  }
 
-  h2 = this.div;
+  h2(styleString, ...dynamicData) {
+    return compatableDiv([styleString, dynamicData], 'h2');
+  }
 
-  h3 = this.div;
+  h3(styleString, ...dynamicData) {
+    return compatableDiv([styleString, dynamicData], 'h3');
+  }
+  h4(styleString, ...dynamicData) {
+    return compatableDiv([styleString, dynamicData], 'h4');
+  }
+  h5(styleString, ...dynamicData) {
+    return compatableDiv([styleString, dynamicData], 'h5');
+  }
 
-  h4 = this.div;
-
-  h5 = this.div;
-
-  h6 = this.div;
+  h6(styleString, ...dynamicData) {
+    return compatableDiv([styleString, dynamicData], 'h6');
+  }
 
   option(styleString, ...dynamicData) {
     return compatableOption([styleString, dynamicData]);
