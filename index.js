@@ -13,6 +13,13 @@ const TextInput = styled.TextInput`
   }}
 `;
 
+const ScrollView = styled.ScrollView`
+  ${({style}) => {
+    if (style) return style;
+    return '';
+  }}
+`;
+
 const View = styled.View`
   ${({style}) => {
     if (style) return style;
@@ -170,7 +177,11 @@ function compatableDiv(styleString, headingType) {
         </TouchableOpacity>
       );
     } else {
-      return <View style={filteredStyle.view}>{child}</View>;
+      if (filteredStyle.scrollable) {
+        return <ScrollView style={filteredStyle.view}>{child}</ScrollView>;
+      } else {
+        return <View style={filteredStyle.view}>{child}</View>;
+      }
     }
   };
 }

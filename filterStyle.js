@@ -39,9 +39,12 @@ function getCSS(obj, field, value) {
 }
 
 function removePseudoStyle(styleString) {
-  styleString = styleString.replace(/\*(.|\n)*?\*/gi, '');
-  styleString = styleString.replace(/\n/gi, '');
-  return styleString.replace(/;(.*)}/gi, ';');
+  let styleString1 = styleString.replace(/\*(.|\n)*?\*/gi, '');
+  let styleString2 = styleString1.replace(/\n/gi, '');
+  let newStyle = styleString2.replace(/::(.*)}/gi, ';');
+  newStyle = newStyle.replace(/@media(.*)}/gi, ';');
+  // console.log(styleString2);
+  return newStyle;
 }
 
 function processTemplateLiterals(literal, props) {
@@ -103,7 +106,7 @@ function transformStyle(field, value) {
 
 function filterStyle(literal, props) {
   let styleString = processTemplateLiterals(literal, props);
-
+  let scrollable = false;
   styleString = removePseudoStyle(styleString);
 
   let viewStyle = ['flexDirection: row'];
@@ -113,6 +116,7 @@ function filterStyle(literal, props) {
     return {
       view: viewStyle.join(';'),
       text: [],
+      scrollable: scrollable,
     };
 
   styleString = styleString.replace(/\n/g, '');
@@ -146,6 +150,11 @@ function filterStyle(literal, props) {
           getCSS(viewStyle, newField, transformedStyle[newField]);
         }
       } else {
+        if (field == 'overflowY') {
+          if (obj[field] == 'auto' || obj[field] == 'scroll') {
+            scrollable = true;
+          }
+        }
         // console.log(field + ' is not supported');
       }
     }
@@ -154,6 +163,7 @@ function filterStyle(literal, props) {
   return {
     view: viewStyle.join(';'),
     text: textStyle.join(';'),
+    scrollable: scrollable,
   };
 }
 
