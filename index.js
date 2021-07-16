@@ -3,6 +3,7 @@ import React from 'react';
 import {Picker, Option} from './NativePicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import filterStyle from './filterStyle';
+import {useWindowDimensions} from 'react-native';
 // import {TextInput, View, Text, TouchableOpacity} from 'react-native';
 import objectFromCSS from 'portable-components/objectFromCSS';
 
@@ -132,6 +133,7 @@ function compatableDiv(styleString, headingType) {
   return props => {
     let {children, onClick} = props;
     let dataset = getDataset(props);
+    let window = useWindowDimensions();
 
     let textProp = {};
 
@@ -141,7 +143,7 @@ function compatableDiv(styleString, headingType) {
       onClick({target: {dataset: dataset}});
     }
 
-    let filteredStyle = filterStyle(styleString, props);
+    let filteredStyle = filterStyle(styleString, props, window);
 
     let child = children;
 
